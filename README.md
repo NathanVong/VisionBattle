@@ -64,7 +64,7 @@
 
 直接開啟瀏覽器即可遊玩，無需安裝任何軟體！
 
-🔗 **立即試玩**：[VisionBattle Demo](https://NathanVong.github.io/VisionBattle)
+🔗 **立即試玩**：[VisionBattle Demo](https://nathanvong.github.io/VisionBattle)
 
 ### 本地遊玩
 
