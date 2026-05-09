@@ -456,11 +456,6 @@ h1, h2, h3 { font-family: 'ZCOOL KuaiLe', 'Noto Sans TC', sans-serif; }
   line-height: 1.2;
   margin-top: 2px;
 }
-.hand-card-tag {
-  font-size: calc(1rem * var(--scale));
-  color: #999;
-  margin-top: 1px;
-}
 .hand-actions {
   display: flex;
   gap: 8px;
@@ -1222,10 +1217,6 @@ function renderCenter(subPhase) {
     var coverPlayerIdx = subPhase === 'cover_p1' ? 0 : 1;
     var coverPlayer = G.players[coverPlayerIdx];
     var sc = G.currentScene;
-    var tagHtml = sc.tags.map(function(t) {
-      return '<span style="display:inline-block;background:var(--scene-accent);color:#fff;padding:2px 8px;border-radius:10px;font-size:0.7rem;margin:0 3px">[' + t + ']</span>';
-    }).join('');
-
     var hasNightBlindWeak = (coverPlayer.identity.type === 'night_blind' && sc.tags.indexOf('弱光') !== -1);
 
     center.innerHTML =
@@ -1234,7 +1225,6 @@ function renderCenter(subPhase) {
           '<div class="scene-label">場景卡</div>' +
           '<div class="scene-icon">' + sc.icon + '</div>' +
           '<div class="scene-name">' + sc.name + '</div>' +
-          '<div style="margin-top:4px">' + tagHtml + '</div>' +
         '</div>' +
         '<div style="font-size:0.9rem;font-weight:700;color:var(--optic-gold);text-align:center;margin-top:6px">' +
           '🔒 ' + coverPlayer.name + ' 暗蓋出牌' +
@@ -1268,7 +1258,6 @@ function renderHandSection(subPhase) {
     cardsHtml += '<div class="hand-card' + sel + dis + '" onclick="selectCoverCard(' + i + ',' + coverPlayerIdx + ')" data-idx="' + i + '">' +
       '<div class="hand-card-icon">' + CARD_ICONS[card.type] + '</div>' +
       '<div class="hand-card-name">' + card.name + '</div>' +
-(card.tags && card.tags[0] !== 'wild' && card.tags[0] !== 'lens' ? '<div class="hand-card-tag">[' + card.tags[0] + ']</div>' : '') +
     '</div>';
   });
 
@@ -1490,13 +1479,8 @@ function doSimultaneousReveal() {
 function showSimultaneousResult(scene, results) {
   var html = '<h2 style="color:var(--optic-gold);font-size:1.2rem;margin-bottom:12px">⚔️ 雙方同時結算</h2>';
 
-  /* 場景卡 */
-  var tagHtml = scene.tags.map(function(t) {
-    return '<span style="display:inline-block;background:var(--scene-accent);color:#fff;padding:2px 8px;border-radius:10px;font-size:0.7rem;margin:0 3px">[' + t + ']</span>';
-  }).join('');
-
   html += '<div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:12px">' +
-    '<span>' + scene.icon + '</span> ' + scene.name + ' ' + tagHtml +
+    '<span>' + scene.icon + '</span> ' + scene.name +
   '</div>';
 
   /* 顯示分數浮標動畫 */
