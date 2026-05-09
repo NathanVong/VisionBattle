@@ -839,7 +839,7 @@ h1, h2, h3 { font-family: 'ZCOOL KuaiLe', 'Noto Sans TC', sans-serif; }
         <ul>
           <li><strong>結構卡</strong>：眼球構造，每張帶有標籤如[近距][強光][高解析度]等</li>
           <li><strong>場景卡（20張）</strong>：每張有2個標籤，需配對出牌</li>
-          <li><strong>感覺應用卡（3張）</strong>：色盲測試、重疊圖案、視覺錯覺</li>
+          <li><strong>感覺應用卡（2張）</strong>：色盲測試、重疊圖案分析</li>
         </ul>
       </div>
       <div class="rules-section">
@@ -952,8 +952,8 @@ const SCENE_CARDS = [
 const SENSORY_CARDS = [
   { type: 'color_test', name: '色盲測試', icon: '🔴🟢' },
   { type: 'overlap_test', name: '重疊圖案分析', icon: '◯△□' },
-  { type: 'illusion_test', name: '視覺錯覺破解', icon: '🌀' }
 ];
+
 
 /* Reshuffle discarded structure cards back into deck when empty */
 function reshuffleStructureDeckIfEmpty() {
@@ -994,13 +994,6 @@ const OVERLAP_CHALLENGES = [
   { count: 3, label: '圓形、三角形、正方形', options: [2, 3, 4, 5] },
   { count: 4, label: '圓形、三角形、正方形、菱形', options: [3, 4, 5, 6] },
   { count: 5, label: '圓形、三角形、正方形、菱形、五邊形', options: [3, 4, 5, 6] },
-];
-
-/* Illusion challenge presets */
-const ILLUSION_CHALLENGES = [
-  { question: '兩條橫線哪條比較長？', answer: '一樣長', options: ['上一條','下一條','一樣長'] },
-  { question: '中央的兩個圓哪個比較大？', answer: '一樣大', options: ['左邊','右邊','一樣大'] },
-  { question: '豎線與橫線哪條比較長？', answer: '一樣長', options: ['豎線','橫線','一樣長'] },
 ];
 
 /* =========================================================
@@ -1648,10 +1641,8 @@ function initiateDuel() {
 
   if (sensory.type === 'color_test') {
     G.duel.challenge = Object.assign({}, pick(ISHIHARA_CHALLENGES));
-  } else if (sensory.type === 'overlap_test') {
-    G.duel.challenge = Object.assign({}, pick(OVERLAP_CHALLENGES));
   } else {
-    G.duel.challenge = Object.assign({}, pick(ILLUSION_CHALLENGES));
+    G.duel.challenge = Object.assign({}, pick(OVERLAP_CHALLENGES));
   }
 
   showDuelIntro();
@@ -1693,10 +1684,6 @@ function showDuelBuzz() {
   } else if (G.duel.sensoryCard.type === 'overlap_test') {
     challengeHtml = '<canvas id="overlap-canvas" width="260" height="200" style="margin:0 auto;display:block;border-radius:12px"></canvas>';
     questionText = '圖中共有幾個獨立的幾何形狀？';
-  } else {
-    /* illusion_test */
-    challengeHtml = '';
-    questionText = G.duel.challenge.question || '';
   }
 
   /* 初始化搶答狀態 */
@@ -1791,14 +1778,13 @@ function showDuelOptions() {
   var ch = G.duel.challenge;
   var playerName = G.players[G.duel.buzzer].name;
   var options = ch.options || [];
-  var isIllusion = G.duel.sensoryCard.type === 'illusion_test';
-  var correctAnswer = isIllusion ? ch.answer : (ch.number !== undefined ? ch.number : ch.count);
+  var correctAnswer = ch.number !== undefined ? ch.number : ch.count;
 
   // 1. 渲染基礎結構
   container.innerHTML =
     '<h2 class="duel-title" style="font-size:1.2rem">⚡ 搶答中</h2>' +
     '<div class="duel-answerer">' + playerName + ' 搶先作答！</div>' +
-    '<div class="duel-question">' + (isIllusion ? '' : (G.duel.sensoryCard.type === 'color_test' ? '你看到的數字是？' : '共有幾個幾何形狀？')) + '</div>' +
+    '<div class="duel-question">' + (G.duel.sensoryCard.type === 'color_test' ? '你看到的數字是？' : '共有幾個幾何形狀？') + '</div>' +
     '<div class="duel-options" id="duel-options-container"></div>';
 
   // 2. 動態產生選項並綁定事件
