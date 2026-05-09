@@ -815,32 +815,45 @@ h1, h2, h3 { font-family: 'ZCOOL KuaiLe', 'Noto Sans TC', sans-serif; }
       <h2>📖 遊戲規則</h2>
       <div class="rules-section">
         <h3>🎯 遊戲目標</h3>
-        <p>先獲得 <strong>5 點積分</strong>的玩家獲得勝利！</p>
+        <p>先獲得 <strong>10 點積分</strong>的玩家獲得勝利！</p>
+      </div>
+      <div class="rules-section">
+        <h3>🎭 身份卡</h3>
+        <p>遊戲開始前每人隨機抽取 1 張，決定本局的生理特質：</p>
+        <ul>
+          <li><strong>健康明眸</strong>：初始手牌減1張（開局僅抽3張）</li>
+          <li><strong>近視患者</strong>：面對[遠距]場景必須連同凹透鏡出牌</li>
+          <li><strong>遠視患者</strong>：面對[近距]場景必須連同凸透鏡出牌</li>
+          <li><strong>夜盲症患者</strong>：[強光]得分時免費多抽1張；[弱光]強制不能出牌</li>
+        </ul>
       </div>
       <div class="rules-section">
         <h3>🃏 卡牌類型</h3>
         <ul>
-          <li><strong>結構卡（14張）</strong>：眼睛的組成構造，如視錐細胞、瞳孔、晶體、視神經等，每類各 2 張</li>
-          <li><strong>場景卡（7張）</strong>：不同的環境場景，如烈陽直射、深夜暗巷等</li>
-          <li><strong>感覺應用卡（2張）</strong>：色盲測試、重疊圖案分析</li>
+          <li><strong>結構卡</strong>：眼球構造，每張帶有標籤如[近距][強光][高解析度]等</li>
+          <li><strong>場景卡（20張）</strong>：每張有2個標籤，需配對出牌</li>
+          <li><strong>感覺應用卡（3張）</strong>：色盲測試、重疊圖案、視覺錯覺</li>
         </ul>
       </div>
       <div class="rules-section">
         <h3>📋 回合流程</h3>
         <ul>
-          <li>每回合選擇<strong>翻場景卡</strong>或<strong>發起決鬥</strong></li>
-          <li>翻場景卡後，從手牌出一張對應的結構卡</li>
-          <li>出牌正確 → 得 <strong>1 分</strong>，卡牌歸還牌堆</li>
-          <li>出牌錯誤 → 不得分，卡牌返回手牌</li>
-          <li>不出牌 → 從結構卡牌堆<strong>抽 1 張</strong></li>
+          <li>翻開場景卡，確認該場景的 <strong>2 個標籤</strong></li>
+          <li>從手牌選擇結構卡出牌（最多2張，透鏡不計入限制）</li>
+          <li>配對 <strong>1 個標籤</strong> → 得 <strong>1 分</strong></li>
+          <li>配對 <strong>2 個標籤</strong> → 得 <strong>3 分</strong></li>
+          <li><strong>視神經</strong>（百搭卡）：搭配1張正確結構卡，直升3分</li>
+          <li>出錯 → 0分，卡牌退回手牌</li>
+          <li>不出牌 → 抽1張結構卡</li>
         </ul>
       </div>
       <div class="rules-section">
         <h3>⚔️ 感覺應用卡決鬥</h3>
         <ul>
-          <li>每位玩家每場僅能發起<strong>一次</strong>決鬥</li>
-          <li>翻開感覺應用卡，<strong>搶先正確辨認</strong>者得 1 分</li>
-          <li>整場比賽最多進行兩次決鬥</li>
+          <li>每位玩家每場限發動 <strong>1 次</strong>搶答決鬥</li>
+          <li>答對且最快的玩家得 <strong>2 分</strong></li>
+          <li>答錯的玩家 <strong>下一回合暫停出牌</strong></li>
+          <li>先答錯則對手獲得補答機會</li>
         </ul>
       </div>
       <button class="btn btn-secondary rules-back" onclick="showScreen('menu')">
@@ -851,15 +864,7 @@ h1, h2, h3 { font-family: 'ZCOOL KuaiLe', 'Noto Sans TC', sans-serif; }
 
   <!-- PASS DEVICE -->
   <div id="screen-pass" class="screen">
-    <div class="pass-content">
-      <h2 style="color:var(--text-dim);font-size:1.1rem;">回合交替</h2>
-      <div class="pass-scores" id="pass-scores"></div>
-      <p class="pass-hint">請將設備交給</p>
-      <h1 class="pass-player-name" id="pass-player-name"></h1>
-      <button class="btn btn-primary" onclick="startTurn()">
-        <i class="fas fa-eye"></i> 開始回合
-      </button>
-    </div>
+    <div class="pass-content" id="pass-content"></div>
   </div>
 
   <!-- GAME -->
@@ -891,101 +896,64 @@ h1, h2, h3 { font-family: 'ZCOOL KuaiLe', 'Noto Sans TC', sans-serif; }
    GAME DATA
    ========================================================= */
 const STRUCTURE_TYPES = [
-  { type: 'cone', name: '視錐細胞', desc: '明亮光線下感應色彩' },
-  { type: 'rod', name: '視桿細胞', desc: '微弱光線下感應明暗' },
-  { type: 'pupil_small', name: '瞳孔(縮小)', desc: '強光時收縮以減光' },
-  { type: 'pupil_large', name: '瞳孔(擴張)', desc: '暗處時放大以增光' },
-  { type: 'lens_thick', name: '晶體(較厚)', desc: '近距離聚焦用' },
-  { type: 'lens_thin', name: '晶體(較薄)', desc: '遠距離聚焦用' },
-  { type: 'nerve', name: '視神經', desc: '傳遞訊號至大腦' },
+  { type: 'cone', name: '視錐細胞', desc: '明亮光線下感應色彩', tags: ['強光','色彩','高解析度'] },
+  { type: 'rod', name: '視桿細胞', desc: '微弱光線下感應明暗', tags: ['弱光'] },
+  { type: 'pupil_small', name: '瞳孔(縮小)', desc: '強光時收縮以減光', tags: ['強光'] },
+  { type: 'pupil_large', name: '瞳孔(擴張)', desc: '暗處時放大以增光', tags: ['弱光'] },
+  { type: 'lens_thick', name: '晶體(較厚)', desc: '近距離聚焦用（睫狀肌收縮）', tags: ['近距'] },
+  { type: 'lens_thin', name: '晶體(較薄)', desc: '遠距離聚焦用（睫狀肌舒張）', tags: ['遠距'] },
+  { type: 'ciliary_contract', name: '睫狀肌(收縮)', desc: '使晶體變厚聚焦近物', tags: ['近距'] },
+  { type: 'ciliary_relax', name: '睫狀肌(舒張)', desc: '使晶體變薄聚焦遠物', tags: ['遠距'] },
+  { type: 'macula', name: '黃斑部', desc: '中央窩高解析度辨色', tags: ['高解析度'] },
+  { type: 'nerve', name: '視神經', desc: '傳遞訊號至大腦（百搭卡）', tags: ['wild'] },
+  { type: 'concave', name: '凹透鏡', desc: '矯正近視用', tags: ['lens'] },
+  { type: 'convex', name: '凸透鏡', desc: '矯正遠視用', tags: ['lens'] },
+];
+
+const IDENTITY_CARDS = [
+  { type: 'healthy', name: '健康明眸', desc: '初始手牌減1張（開局僅抽3張）' },
+  { type: 'myopia', name: '近視患者', desc: '面對任何有[遠距]標籤的場景，必須連同「凹透鏡」一起出牌，否則出牌無效得0分' },
+  { type: 'hyperopia', name: '遠視患者', desc: '面對任何有[近距]標籤的場景，必須連同「凸透鏡」一起出牌，否則出牌無效得0分' },
+  { type: 'night_blind', name: '夜盲症患者', desc: '[強光]成功得分時免費多抽1張牌；[弱光]強制不能出牌' },
 ];
 
 const SCENE_CARDS = [
-  {
-    type: 'sunlight', name: '烈陽直射', icon: '☀️',
-    correct: ['cone', 'pupil_small'],
-    explanations: {
-      cone: '烈陽下光線充足，視錐細胞活躍地感應色彩與辨別細節。',
-      pupil_small: '強光照射時，瞳孔反射性縮小以減少進入眼球的光量，保護視網膜。'
-    },
-    wrongHint: '烈陽是強光環境——想想哪些構造在強光下運作？'
-  },
-  {
-    type: 'dark_alley', name: '深夜暗巷', icon: '🌙',
-    correct: ['rod', 'pupil_large'],
-    explanations: {
-      rod: '黑暗環境下，視桿細胞負責暗適應，感受微弱光線。',
-      pupil_large: '光線不足時瞳孔擴大，讓更多光線進入以提升感光能力。'
-    },
-    wrongHint: '深夜暗巷極為昏暗——想想暗處眼睛如何調適？'
-  },
-  {
-    type: 'close_reading', name: '近距閱讀書本', icon: '📖',
-    correct: ['lens_thick'],
-    explanations: {
-      lens_thick: '近距離看物時，睫狀肌收縮使晶體變厚，增加折射力使影像聚焦於視網膜上。'
-    },
-    wrongHint: '近距離聚焦——晶體需要怎樣變化才能看清？'
-  },
-  {
-    type: 'distant_tower', name: '遠方的旅遊塔', icon: '🗼',
-    correct: ['lens_thin'],
-    explanations: {
-      lens_thin: '遠距離看物時，睫狀肌放鬆使晶體變薄，減少折射力以聚焦遠處物體。'
-    },
-    wrongHint: '看遠方景物——晶體該變厚還是變薄呢？'
-  },
-  {
-    type: 'headlights', name: '迎面車燈', icon: '🚘',
-    correct: ['cone', 'pupil_small'],
-    explanations: {
-      cone: '車燈發出強光，視錐細胞在亮光下活化，幫助辨識物體。',
-      pupil_small: '面對強烈車燈，瞳孔迅速縮小以限制光量進入，保護視網膜。'
-    },
-    wrongHint: '迎面車燈是強光刺激——哪些構造會因應強光？'
-  },
-  {
-    type: 'outdoor_shade', name: '戶外陰涼光線', icon: '🌲',
-    correct: ['rod', 'pupil_large'],
-    explanations: {
-      rod: '陰涼處光線較弱，視桿細胞輔助感光以增強視覺靈敏度。',
-      pupil_large: '光線偏弱的環境下，瞳孔適度擴大以接收更多光線。'
-    },
-    wrongHint: '陰涼光線較柔弱——與暗處適應的構造有關。'
-  },
-  {
-    type: 'visual_signal', name: '解析畫面視覺訊號', icon: '🧠',
-    correct: ['nerve'],
-    explanations: {
-      nerve: '視神經負責將視網膜的電訊號傳輸到大腦視覺皮質進行解析，形成完整影像。'
-    },
-    wrongHint: '訊號傳遞到大腦——需要哪條「路線」？'
-  }
+  /* 重複標籤場景（需出 2 張相同標籤的卡牌才能得 3 分） */
+  { type: 'close_reading', name: '近距閱讀書本', icon: '📖', tags: ['近距','近距'], correct: ['lens_thick','ciliary_contract'] },
+  { type: 'repair_watch', name: '修理精密手錶', icon: '⌚', tags: ['近距','近距'], correct: ['lens_thick','ciliary_contract'] },
+  { type: 'distant_tower', name: '遠方的旅遊塔', icon: '🗼', tags: ['遠距','遠距'], correct: ['lens_thin','ciliary_relax'] },
+  { type: 'distant_peak', name: '眺望對岸山峰', icon: '⛰️', tags: ['遠距','遠距'], correct: ['lens_thin','ciliary_relax'] },
+  { type: 'sunlight', name: '烈陽直射', icon: '☀️', tags: ['強光','強光'], correct: ['pupil_small','cone'] },
+  { type: 'snow_glare', name: '雪地刺眼反光', icon: '🏔️', tags: ['強光','強光'], correct: ['pupil_small','cone'] },
+  { type: 'dark_alley', name: '深夜無燈暗巷', icon: '🌙', tags: ['弱光','弱光'], correct: ['pupil_large','rod'] },
+  { type: 'blackout', name: '停電的密室', icon: '🕯️', tags: ['弱光','弱光'], correct: ['pupil_large','rod'] },
+  /* 複合標籤場景（需出 2 張不同標籤的卡牌） */
+  { type: 'thread_needle', name: '穿針引線', icon: '🪡', tags: ['近距','高解析度'], correct: ['lens_thick','ciliary_contract','macula'] },
+  { type: 'microscope', name: '顯微鏡看細胞', icon: '🔬', tags: ['近距','高解析度'], correct: ['lens_thick','ciliary_contract','macula'] },
+  { type: 'dark_phone', name: '暗處滑手機', icon: '📱', tags: ['近距','弱光'], correct: ['lens_thick','ciliary_contract','pupil_large','rod'] },
+  { type: 'color_canvas', name: '繪製彩色畫布', icon: '🎨', tags: ['近距','色彩'], correct: ['lens_thick','ciliary_contract','cone'] },
+  { type: 'sun_phone', name: '烈日下看手機', icon: '📲', tags: ['近距','強光'], correct: ['lens_thick','ciliary_contract','pupil_small','cone'] },
+  { type: 'starry_sky', name: '仰望滿天星空', icon: '🌌', tags: ['遠距','弱光'], correct: ['lens_thin','ciliary_relax','pupil_large','rod'] },
+  { type: 'far_sign', name: '辨識遠方路標', icon: '🪧', tags: ['遠距','高解析度'], correct: ['lens_thin','ciliary_relax','macula','cone'] },
+  { type: 'fireworks', name: '欣賞跨年煙火', icon: '🎆', tags: ['遠距','色彩'], correct: ['lens_thin','ciliary_relax','cone'] },
+  { type: 'stage_light', name: '舞台聚光燈打臉', icon: '🎭', tags: ['強光','色彩'], correct: ['pupil_small','cone'] },
+  { type: 'diamond_inspect', name: '強光下檢查鑽石', icon: '💎', tags: ['強光','高解析度'], correct: ['pupil_small','macula','cone'] },
+  { type: 'bush_chameleon', name: '尋找草叢變色龍', icon: '🦎', tags: ['高解析度','色彩'], correct: ['macula','cone'] },
+  { type: 'dusk_color', name: '黃昏微光看彩圖', icon: '🌆', tags: ['弱光','色彩'], correct: ['pupil_large','rod','cone'] },
 ];
 
 const SENSORY_CARDS = [
   { type: 'color_test', name: '色盲測試', icon: '🔴🟢' },
-  { type: 'overlap_test', name: '重疊圖案分析', icon: '◯△□' }
+  { type: 'overlap_test', name: '重疊圖案分析', icon: '◯△□' },
+  { type: 'illusion_test', name: '視覺錯覺破解', icon: '🌀' }
 ];
 
 /* Reshuffle discarded structure cards back into deck when empty */
 function reshuffleStructureDeckIfEmpty() {
-  if (G.structureDeck.length === 0) {
-    /* Take all cards from players' hands and put back into the deck */
-    var collected = [];
-    G.players.forEach(function(p) {
-      while (p.hand.length > 0) {
-        collected.push(p.hand.pop());
-      }
-    });
-    /* Shuffle and make new deck */
-    G.structureDeck = collected;
+  if (G.structureDeck.length === 0 && G.structureDiscard.length > 0) {
+    G.structureDeck = G.structureDiscard;
+    G.structureDiscard = [];
     shuffle(G.structureDeck);
-    /* Re-deal 3 cards to each player */
-    for (var di = 0; di < 3; di++) {
-      if (G.structureDeck.length > 0) G.players[0].hand.push(G.structureDeck.pop());
-      if (G.structureDeck.length > 0) G.players[1].hand.push(G.structureDeck.pop());
-    }
   }
 }
 
@@ -997,7 +965,12 @@ const CARD_ICONS = {
   pupil_large: '<svg viewBox="0 0 100 60"><path d="M5,30 Q50,-2 95,30 Q50,62 5,30Z" fill="white" stroke="#555" stroke-width="2"/><circle cx="50" cy="30" r="17" fill="#8B6914"/><circle cx="50" cy="30" r="13" fill="black"/><ellipse cx="42" cy="23" rx="3" ry="2" fill="rgba(255,255,255,0.35)"/></svg>',
   lens_thick: '<svg viewBox="0 0 100 80"><ellipse cx="50" cy="40" rx="20" ry="32" fill="rgba(135,206,250,0.35)" stroke="#4a90d9" stroke-width="2"/><line x1="10" y1="40" x2="30" y2="40" stroke="#4a90d9" stroke-width="1.5" stroke-dasharray="4,3"/><line x1="70" y1="40" x2="90" y2="40" stroke="#4a90d9" stroke-width="1.5" stroke-dasharray="4,3"/></svg>',
   lens_thin: '<svg viewBox="0 0 100 80"><ellipse cx="50" cy="40" rx="8" ry="32" fill="rgba(135,206,250,0.35)" stroke="#4a90d9" stroke-width="2"/><line x1="10" y1="40" x2="42" y2="40" stroke="#4a90d9" stroke-width="1.5" stroke-dasharray="4,3"/><line x1="58" y1="40" x2="90" y2="40" stroke="#4a90d9" stroke-width="1.5" stroke-dasharray="4,3"/></svg>',
-  nerve: '<svg viewBox="0 0 100 80"><path d="M12,42 L28,20 L44,52 L60,24 L72,44" fill="none" stroke="#e9c46a" stroke-width="3.5" stroke-linecap="round"/><circle cx="82" cy="38" r="13" fill="#f4a261" opacity="0.75"/><circle cx="82" cy="38" r="6" fill="#e76f51"/><circle cx="8" cy="42" r="5" fill="#2a9d8f"/></svg>'
+  nerve: '<svg viewBox="0 0 100 80"><path d="M12,42 L28,20 L44,52 L60,24 L72,44" fill="none" stroke="#e9c46a" stroke-width="3.5" stroke-linecap="round"/><circle cx="82" cy="38" r="13" fill="#f4a261" opacity="0.75"/><circle cx="82" cy="38" r="6" fill="#e76f51"/><circle cx="8" cy="42" r="5" fill="#2a9d8f"/></svg>',
+  ciliary_contract: '<svg viewBox="0 0 100 80"><ellipse cx="50" cy="40" rx="20" ry="32" fill="rgba(135,206,250,0.3)" stroke="#4a90d9" stroke-width="2"/><path d="M10,20 Q30,10 10,60" fill="none" stroke="#e63946" stroke-width="2.5"/><path d="M90,20 Q70,10 90,60" fill="none" stroke="#e63946" stroke-width="2.5"/><text x="50" y="48" text-anchor="middle" font-size="14" font-weight="bold" fill="#e63946">收</text></svg>',
+  ciliary_relax: '<svg viewBox="0 0 100 80"><ellipse cx="50" cy="40" rx="8" ry="32" fill="rgba(135,206,250,0.3)" stroke="#4a90d9" stroke-width="2"/><path d="M10,20 Q30,10 10,60" fill="none" stroke="#2a9d8f" stroke-width="2.5"/><path d="M90,20 Q70,10 90,60" fill="none" stroke="#2a9d8f" stroke-width="2.5"/><text x="50" y="48" text-anchor="middle" font-size="14" font-weight="bold" fill="#2a9d8f">舒</text></svg>',
+  macula: '<svg viewBox="0 0 100 80"><circle cx="50" cy="40" r="28" fill="#f4a261" opacity="0.3" stroke="#e76f51" stroke-width="2"/><circle cx="50" cy="40" r="12" fill="#e76f51" opacity="0.5"/><circle cx="50" cy="40" r="4" fill="#c1121f"/></svg>',
+  concave: '<svg viewBox="0 0 100 80"><path d="M20,20 Q50,10 80,20 L80,60 Q50,70 20,60 Z" fill="rgba(135,206,250,0.25)" stroke="#457b9d" stroke-width="2"/><path d="M20,20 Q50,30 80,20" fill="none" stroke="#457b9d" stroke-width="2"/><path d="M20,60 Q50,50 80,60" fill="none" stroke="#457b9d" stroke-width="2"/></svg>',
+  convex: '<svg viewBox="0 0 100 80"><path d="M20,10 Q50,40 20,70 L80,70 Q50,40 80,10 Z" fill="rgba(231,111,81,0.25)" stroke="#e76f51" stroke-width="2"/><path d="M20,10 Q50,40 80,10" fill="none" stroke="#e76f51" stroke-width="2"/><path d="M20,70 Q50,40 80,70" fill="none" stroke="#e76f51" stroke-width="2"/></svg>'
 };
 
 /* Ishihara challenge presets */
@@ -1016,6 +989,13 @@ const OVERLAP_CHALLENGES = [
   { count: 5, label: '圓形、三角形、正方形、菱形、五邊形', options: [3, 4, 5, 6] },
 ];
 
+/* Illusion challenge presets */
+const ILLUSION_CHALLENGES = [
+  { question: '兩條橫線哪條比較長？', answer: '一樣長', options: ['上一條','下一條','一樣長'] },
+  { question: '中央的兩個圓哪個比較大？', answer: '一樣大', options: ['左邊','右邊','一樣大'] },
+  { question: '豎線與橫線哪條比較長？', answer: '一樣長', options: ['豎線','橫線','一樣長'] },
+];
+
 /* =========================================================
    GAME STATE
    ========================================================= */
@@ -1025,17 +1005,25 @@ const G = {
   currentPlayer: 0,
   players: [],
   structureDeck: [],
+  structureDiscard: [],
   sceneDeck: [],
   sensoryDeck: [],
   currentScene: null,
-  selectedCardIdx: -1,
+  selectedCardsIdx: [],
+  identityDeck: [],
   duel: {
     buzzer: -1,
     challenge: null,
     sensoryCard: null,
-    secondChance: false
+    secondChance: false,
+    canBuzz: false,
+    buzzed: false,
+    falseStart: null,
+    countdownActive: true,
+    questionStartTime: 0
   },
-  lastResult: null
+  lastResult: null,
+  skipTurn: [-1, -1]
 };
 
 /* =========================================================
@@ -1065,8 +1053,11 @@ function showScreen(id) {
 function startGame() {
   G.structureDeck = [];
   STRUCTURE_TYPES.forEach(function(t) {
-    G.structureDeck.push(Object.assign({}, t, { uid: genUID() }));
-    G.structureDeck.push(Object.assign({}, t, { uid: genUID() }));
+    /* 每種結構卡各2張（除了凹透鏡凸透鏡各1張） */
+    var count = (t.type === 'concave' || t.type === 'convex') ? 1 : 2;
+    for (var ci = 0; ci < count; ci++) {
+      G.structureDeck.push(Object.assign({}, t, { uid: genUID() }));
+    }
   });
   shuffle(G.structureDeck);
 
@@ -1076,42 +1067,91 @@ function startGame() {
   G.sensoryDeck = SENSORY_CARDS.map(function(c) { return Object.assign({}, c, { uid: genUID() }); });
   shuffle(G.sensoryDeck);
 
+  G.structureDiscard = [];
+  G.skipTurn = [-1, -1];
+
+  /* 身份卡 */
+  G.identityDeck = IDENTITY_CARDS.map(function(c) { return Object.assign({}, c, { uid: genUID() }); });
+  shuffle(G.identityDeck);
+
   G.players = [
-    { name: '玩家一', score: 0, hand: [], usedDuel: false },
-    { name: '玩家二', score: 0, hand: [], usedDuel: false }
+    { name: '玩家一', score: 0, hand: [], usedDuel: false, identity: null, skipNext: false },
+    { name: '玩家二', score: 0, hand: [], usedDuel: false, identity: null, skipNext: false }
   ];
 
-  for (var i = 0; i < 3; i++) {
-    G.players[0].hand.push(G.structureDeck.pop());
-    G.players[1].hand.push(G.structureDeck.pop());
+  /* 每人抽身份卡 */
+  G.players[0].identity = G.identityDeck.pop();
+  G.players[1].identity = G.identityDeck.pop();
+
+  /* 發手牌：健康明眸抽3張，其他抽4張 */
+  for (var pi = 0; pi < 2; pi++) {
+    var handSize = G.players[pi].identity.type === 'healthy' ? 3 : 4;
+    for (var hi = 0; hi < handSize; hi++) {
+      if (G.structureDeck.length > 0) {
+        G.players[pi].hand.push(G.structureDeck.pop());
+      }
+    }
   }
 
   G.currentPlayer = 0;
-  G.selectedCardIdx = -1;
+  G.selectedCardsIdx = [];
   G.currentScene = null;
-  showPassScreen();
+  showIdentityScreen();
+}
+
+/* =========================================================
+   IDENTITY SCREEN
+   ========================================================= */
+function showIdentityScreen() {
+  var html = '<h2 style="color:var(--optic-gold);font-size:1.3rem;margin-bottom:16px">🎭 抽身份卡</h2>';
+  G.players.forEach(function(p, i) {
+    html += '<div style="background:var(--bg-surface);border-radius:12px;padding:16px;margin-bottom:12px;border:1px solid rgba(196,155,61,0.15);text-align:center">' +
+      '<div style="font-size:0.9rem;color:var(--text-dim);margin-bottom:4px">' + p.name + '</div>' +
+      '<div style="font-size:1.3rem;font-weight:900;color:' + (i===0?'var(--p1-color)':'var(--p2-color)') + '">' + p.identity.name + '</div>' +
+      '<div style="font-size:0.8rem;color:var(--text-dim);margin-top:6px">' + p.identity.desc + '</div>' +
+    '</div>';
+  });
+  html += '<button class="btn btn-primary" onclick="showPassScreen()"><i class="fas fa-arrow-right"></i> 確認，開始遊戲</button>';
+  document.getElementById('pass-content').innerHTML = html;
+  showScreen('pass');
 }
 
 /* =========================================================
    PASS DEVICE
    ========================================================= */
 function showPassScreen() {
-  var html = '';
+  /* 檢查是否有人要跳過回合 */
+  var p = G.players[G.currentPlayer];
+  if (p.skipNext) {
+    p.skipNext = false;
+    G.currentPlayer = 1 - G.currentPlayer;
+    /* 遞迴但要防止無限循環 */
+  }
+
+  var html = '<h2 style="color:var(--text-dim);font-size:1.1rem;">回合交替</h2>' +
+    '<div class="pass-scores" id="pass-scores-dynamic"></div>' +
+    '<div class="pass-hint">請將設備交給</div>' +
+    '<h1 class="pass-player-name" id="pass-player-name-dynamic"></h1>' +
+    '<button class="btn btn-primary" onclick="startTurn()"><i class="fas fa-eye"></i> 開始回合</button>';
+
+  document.getElementById('pass-content').innerHTML = html;
+
+  var scoresHtml = '';
   G.players.forEach(function(p, i) {
     var isCurrent = i === G.currentPlayer;
-    html += '<div class="pass-score-item' + (isCurrent ? ' current' : '') + '">' +
+    scoresHtml += '<div class="pass-score-item' + (isCurrent ? ' current' : '') + '">' +
       '<div class="pass-score-label">' + p.name + '</div>' +
       '<div class="pass-score-num" style="color:' + (i === 0 ? 'var(--p1-color)' : 'var(--p2-color)') + '">' + p.score + '</div>' +
     '</div>';
   });
-  document.getElementById('pass-scores').innerHTML = html;
-  document.getElementById('pass-player-name').textContent = G.players[G.currentPlayer].name;
-  document.getElementById('pass-player-name').style.color = G.currentPlayer === 0 ? 'var(--p1-color)' : 'var(--p2-color)';
+  document.getElementById('pass-scores-dynamic').innerHTML = scoresHtml;
+  document.getElementById('pass-player-name-dynamic').textContent = G.players[G.currentPlayer].name;
+  document.getElementById('pass-player-name-dynamic').style.color = G.currentPlayer === 0 ? 'var(--p1-color)' : 'var(--p2-color)';
   showScreen('pass');
 }
 
 function startTurn() {
-  G.selectedCardIdx = -1;
+  G.selectedCardsIdx = [];
   G.currentScene = null;
   renderGameScreen('chooseAction');
   showScreen('game');
@@ -1128,14 +1168,16 @@ function renderGameScreen(subPhase) {
 
 function renderTopBar() {
   var opp = G.players[1 - G.currentPlayer];
-  var cur = G.players[G.currentPlayer];
   var oppIdx = 1 - G.currentPlayer;
   var topHtml = '<div class="player-bar-info">' +
     '<div class="player-avatar" style="background:' + (oppIdx === 0 ? 'var(--p1-color)' : 'var(--p2-color)') + '">' + (oppIdx + 1) + '</div>' +
     '<div><div class="player-name-bar">' + opp.name + '</div>' +
     '<div class="player-hand-count"><i class="fas fa-clone"></i> ' + opp.hand.length + ' 張手牌</div></div>' +
     '</div>' +
-    '<div class="player-score-bar"><i class="fas fa-star"></i> ' + opp.score + '</div>';
+    '<div style="display:flex;align-items:center;gap:8px">' +
+    '<div class="player-score-bar"><i class="fas fa-star"></i> ' + opp.score + '</div>' +
+    '<div style="font-size:0.65rem;background:var(--bg-elevated);padding:2px 6px;border-radius:6px;color:var(--text-dim)">' + opp.identity.name + '</div>' +
+    '</div>';
   document.getElementById('game-top-bar').innerHTML = topHtml;
 }
 
@@ -1145,7 +1187,11 @@ function renderCenter(subPhase) {
 
   if (subPhase === 'chooseAction') {
     var duelDisabled = p.usedDuel;
+    var canPlay = !p.skipNext;
     center.innerHTML =
+      '<div style="font-size:0.75rem;background:var(--bg-elevated);padding:4px 12px;border-radius:20px;margin-bottom:4px;color:var(--optic-gold)">' +
+        '<i class="fas fa-id-card"></i> ' + p.identity.name +
+      '</div>' +
       '<div class="deck-row">' +
         '<div class="deck-indicator"><div class="deck-icon structure"><i class="fas fa-eye"></i></div><div class="deck-count">結構 ' + G.structureDeck.length + '</div></div>' +
         '<div class="deck-indicator"><div class="deck-icon scene"><i class="fas fa-image"></i></div><div class="deck-count">場景 ' + G.sceneDeck.length + '</div></div>' +
@@ -1155,8 +1201,8 @@ function renderCenter(subPhase) {
         '<div class="action-prompt-title">' + p.name + ' 的回合</div>' +
         '<div class="action-prompt-sub">選擇本回合的行動</div>' +
         '<div class="action-buttons">' +
-          '<button class="btn btn-primary" onclick="drawSceneCard()"><i class="fas fa-image"></i>&ensp;翻開場景卡</button>' +
-          '<button class="btn btn-duel' + (duelDisabled ? '' : '') + '"' + (duelDisabled ? ' disabled' : '') + ' onclick="initiateDuel()">' +
+          '<button class="btn btn-primary" onclick="drawSceneCard()"' + (!canPlay ? ' disabled' : '') + '><i class="fas fa-image"></i>&ensp;翻開場景卡</button>' +
+          '<button class="btn btn-duel' + (duelDisabled ? '' : '') + '"' + (duelDisabled || !canPlay ? ' disabled' : '') + ' onclick="initiateDuel()">' +
             '<i class="fas fa-bolt"></i>&ensp;發起決鬥' +
             (duelDisabled ? '<br><span style="font-size:0.7rem;font-family:Noto Sans TC,sans-serif;font-weight:400">（已使用過）</span>' : '') +
           '</button>' +
@@ -1164,14 +1210,19 @@ function renderCenter(subPhase) {
       '</div>';
   } else if (subPhase === 'sceneRevealed') {
     var sc = G.currentScene;
+    var tagHtml = sc.tags.map(function(t) {
+      return '<span style="display:inline-block;background:var(--scene-accent);color:#fff;padding:2px 8px;border-radius:10px;font-size:0.7rem;margin:0 3px">[' + t + ']</span>';
+    }).join('');
     center.innerHTML =
       '<div class="scene-area">' +
         '<div class="scene-card-display">' +
           '<div class="scene-label">場景卡</div>' +
           '<div class="scene-icon">' + sc.icon + '</div>' +
           '<div class="scene-name">' + sc.name + '</div>' +
+          '<div style="margin-top:4px">' + tagHtml + '</div>' +
         '</div>' +
-        '<div style="font-size:0.85rem;color:var(--text-dim);text-align:center">選擇一張結構卡出牌，或不出牌摸牌</div>' +
+        '<div style="font-size:0.8rem;color:var(--text-dim);text-align:center;line-height:1.4">' +
+          '選擇結構卡出牌（最多2張）<br>視神經是百搭卡，搭配1張正確卡得3分</div>' +
       '</div>';
   }
 }
@@ -1180,28 +1231,32 @@ function renderHandSection(subPhase) {
   var section = document.getElementById('hand-section');
   var p = G.players[G.currentPlayer];
   var canSelect = subPhase === 'sceneRevealed';
+  var identity = p.identity;
 
   var cardsHtml = '';
   p.hand.forEach(function(card, i) {
-    var sel = G.selectedCardIdx === i ? ' selected' : '';
+    var sel = G.selectedCardsIdx.indexOf(i) !== -1 ? ' selected' : '';
     var dis = !canSelect ? ' disabled' : '';
     cardsHtml += '<div class="hand-card' + sel + dis + '" onclick="selectCard(' + i + ')" data-idx="' + i + '">' +
       '<div class="hand-card-icon">' + CARD_ICONS[card.type] + '</div>' +
       '<div class="hand-card-name">' + card.name + '</div>' +
+      (card.tags && card.tags[0] !== 'wild' && card.tags[0] !== 'lens' ? '<div style="font-size:0.45rem;color:#999;margin-top:1px">[' + card.tags[0] + ']</div>' : '') +
     '</div>';
   });
 
   var actionsHtml = '';
   if (subPhase === 'sceneRevealed') {
-    var playDisabled = G.selectedCardIdx < 0 ? ' disabled' : '';
+    var playDisabled = G.selectedCardsIdx.length === 0 ? ' disabled' : '';
     actionsHtml = '<div class="hand-actions">' +
-      '<button class="btn btn-primary"' + playDisabled + ' id="btn-play" onclick="playCard()"><i class="fas fa-check"></i> 出牌</button>' +
+      '<button class="btn btn-primary"' + playDisabled + ' id="btn-play" onclick="playCards()"><i class="fas fa-check"></i> 出牌</button>' +
       '<button class="btn btn-secondary" onclick="passCard()"><i class="fas fa-plus"></i> 不出牌</button>' +
     '</div>';
   }
 
+  var identityTag = '<span style="display:inline-block;font-size:0.7rem;color:var(--optic-gold);margin-left:6px"><i class="fas fa-id-card"></i> ' + identity.name + '</span>';
+
   section.innerHTML =
-    '<div class="hand-label"><i class="fas fa-hand-paper"></i> ' + p.name + ' 的手牌 (' + p.hand.length + ')</div>' +
+    '<div class="hand-label"><i class="fas fa-hand-paper"></i> ' + p.name + ' 的手牌 (' + p.hand.length + ')' + identityTag + '</div>' +
     '<div class="hand-cards">' + cardsHtml + '</div>' +
     actionsHtml;
 
@@ -1223,39 +1278,158 @@ function renderHandSection(subPhase) {
 function selectCard(idx) {
   if (G.phase !== 'game') return;
   if (!G.currentScene) return;
-  G.selectedCardIdx = G.selectedCardIdx === idx ? -1 : idx;
+  var pos = G.selectedCardsIdx.indexOf(idx);
+  if (pos !== -1) {
+    G.selectedCardsIdx.splice(pos, 1);
+  } else {
+    if (G.selectedCardsIdx.length >= 2) return; /* 最多2張 */
+    G.selectedCardsIdx.push(idx);
+  }
   renderHandSection('sceneRevealed');
 }
 
 function drawSceneCard() {
-  /* Reshuffle scene deck if empty */
+  /* 夜盲症遇到[弱光]不能出牌 */
+  var p = G.players[G.currentPlayer];
+  if (p.identity.type === 'night_blind') {
+    /* 先翻開場景，然後在場景revealed後才判斷 */
+  }
   if (G.sceneDeck.length === 0) {
-    /* Rebuild and reshuffle from initial data */
     G.sceneDeck = SCENE_CARDS.map(function(c) { return Object.assign({}, c, { uid: genUID() }); });
     shuffle(G.sceneDeck);
   }
   var sc = G.sceneDeck.shift();
   G.currentScene = sc;
-  G.selectedCardIdx = -1;
+  G.selectedCardsIdx = [];
+
+  /* 夜盲症：場景含[弱光]則強制不能出牌 */
+  if (p.identity.type === 'night_blind' && sc.tags.indexOf('弱光') !== -1) {
+    /* 自動跳過——直接摸牌 */
+    var drawn = null;
+    reshuffleStructureDeckIfEmpty();
+    if (G.structureDeck.length > 0) {
+      drawn = G.structureDeck.pop();
+      p.hand.push(drawn);
+    }
+    G.currentScene = null;
+    showResult('draw', sc, drawn, '🌙 夜盲症：弱光環境無法出牌，自動補牌');
+    return;
+  }
+
   renderGameScreen('sceneRevealed');
 }
 
-function playCard() {
-  if (G.selectedCardIdx < 0) return;
+function playCards() {
+  if (G.selectedCardsIdx.length === 0) return;
   var p = G.players[G.currentPlayer];
-  var card = p.hand[G.selectedCardIdx];
   var scene = G.currentScene;
-  var isCorrect = scene.correct.indexOf(card.type) !== -1;
+  var selectedCards = G.selectedCardsIdx.map(function(idx) { return p.hand[idx]; });
 
-  if (isCorrect) {
-    p.hand.splice(G.selectedCardIdx, 1);
-    G.structureDeck.unshift(Object.assign({}, card, { uid: genUID() }));
-    p.score += 1;
-    var explanation = scene.explanations[card.type] || '正確！';
-    showResult('correct', scene, card, explanation);
-  } else {
-    showResult('wrong', scene, card, null);
+  /* 事先檢查身份障礙（在所有邏輯之前） */
+
+  /* 近視患者 + [遠距]需要凹透鏡 */
+  if (p.identity.type === 'myopia' && scene.tags.indexOf('遠距') !== -1) {
+    var hasConcave = selectedCards.some(function(c) { return c.type === 'concave'; });
+    if (!hasConcave) {
+      showResult('wrong', scene, selectedCards, '近視患者面對[遠距]場景必須連同凹透鏡出牌！');
+      return;
+    }
   }
+  /* 遠視患者 + [近距]需要凸透鏡 */
+  if (p.identity.type === 'hyperopia' && scene.tags.indexOf('近距') !== -1) {
+    var hasConvex = selectedCards.some(function(c) { return c.type === 'convex'; });
+    if (!hasConvex) {
+      showResult('wrong', scene, selectedCards, '遠視患者面對[近距]場景必須連同凸透鏡出牌！');
+      return;
+    }
+  }
+
+  /* 檢查是否包含視神經（百搭） */
+  var hasWild = selectedCards.some(function(c) { return c.type === 'nerve'; });
+  /* 過濾掉透鏡和視神經（這些不計入配對） */
+  var playCards = selectedCards.filter(function(c) { return c.tags[0] !== 'lens' && c.type !== 'nerve'; });
+
+  if (hasWild) {
+    /* 百搭模式：視神經 + 至少1張正確卡 =直接3分 */
+    var anyCorrect = playCards.some(function(c) { return scene.correct.indexOf(c.type) !== -1; });
+    if (anyCorrect && playCards.length > 0) {
+      /* 成功！得3分 */
+      removePlayedCards(p, G.selectedCardsIdx);
+      p.score += 3;
+      var bonusMsg = '';
+      if (p.identity.type === 'night_blind' && scene.tags.indexOf('強光') !== -1) {
+        bonusMsg = doNightBlindBonus(p);
+      }
+      showResult('correct', scene, selectedCards, '視神經百搭！搭配正確結構卡，直接獲得3分！' + bonusMsg);
+      return;
+    } else {
+      /* 視神經沒有搭配正確卡，出錯 */
+      showResult('wrong', scene, selectedCards, '視神經百搭卡需搭配1張正確結構卡才能得分');
+      return;
+    }
+  }
+
+  /* 正常配對邏輯：對每個tag找匹配 */
+  var matchedTags = 0;
+  var matchedNames = [];
+  var usedTypes = [];
+
+  scene.tags.forEach(function(tag) {
+    for (var ci = 0; ci < playCards.length; ci++) {
+      var c = playCards[ci];
+      if (usedTypes.indexOf(ci) !== -1) continue;
+      if (c.tags.indexOf(tag) !== -1) {
+        matchedTags++;
+        matchedNames.push(c.name);
+        usedTypes.push(ci);
+        break;
+      }
+    }
+  });
+
+  var score = 0;
+  if (matchedTags === 2) {
+    score = 3;
+  } else if (matchedTags === 1) {
+    score = 1;
+  }
+
+  if (score > 0) {
+    removePlayedCards(p, G.selectedCardsIdx);
+    p.score += score;
+    var bonusMsg = '';
+    if (p.identity.type === 'night_blind' && scene.tags.indexOf('強光') !== -1) {
+      bonusMsg = doNightBlindBonus(p);
+    }
+    if (score === 3) {
+      showResult('correct', scene, selectedCards, '完美配對2個標籤！+3分' + bonusMsg);
+    } else {
+      showResult('correct', scene, selectedCards, '配對1個標籤！+1分' + bonusMsg);
+    }
+  } else {
+    showResult('wrong', scene, selectedCards, '出牌與場景標籤不符');
+  }
+}
+
+function doNightBlindBonus(player) {
+  reshuffleStructureDeckIfEmpty();
+  if (G.structureDeck.length > 0) {
+    var bonus = G.structureDeck.pop();
+    player.hand.push(bonus);
+    return ' （夜盲症特權：免費多抽1張「' + bonus.name + '」）';
+  }
+  return ' （夜盲症特權：牌堆已空無法抽牌）';
+}
+
+function removePlayedCards(player, indices) {
+  /* 從大到小排序以避免index移位問題 */
+  var sorted = indices.slice().sort(function(a,b) { return b - a; });
+  sorted.forEach(function(idx) {
+    var card = player.hand[idx];
+    /* 透鏡放回牌堆？根據規則，出錯的退回手牌。出成功的進棄牌堆 */
+    G.structureDiscard.push(card);
+    player.hand.splice(idx, 1);
+  });
 }
 
 function passCard() {
@@ -1272,18 +1446,37 @@ function passCard() {
 /* =========================================================
    RESULT SCREEN
    ========================================================= */
-function showResult(type, scene, card, explanation) {
+function showResult(type, scene, cards, explanation) {
   var html = '';
+  var extraMsg = '';
   if (type === 'correct') {
     html += '<div class="result-icon">✅</div>';
-    html += '<h2 class="result-title correct">出牌正確！+1 分</h2>';
-    showScorePopup('+1');
+    /* 從explanation中提取分數 */
+    var scoreText = '+1';
+    if (explanation && explanation.indexOf('3分') !== -1) scoreText = '+3';
+    else if (explanation && explanation.indexOf('2分') !== -1) scoreText = '+2';
+    html += '<h2 class="result-title correct">出牌正確！' + scoreText + ' 分</h2>' + extraMsg;
+    showScorePopup(scoreText);
   } else if (type === 'wrong') {
     html += '<div class="result-icon">❌</div>';
     html += '<h2 class="result-title wrong">出牌錯誤</h2>';
+    if (explanation) {
+      html += '<div class="result-explanation" style="margin-top:8px">' + explanation + '</div>';
+    }
+    /* 正確答案提示 */
+    if (scene) {
+      var correctNames = scene.correct.map(function(t) {
+        var found = STRUCTURE_TYPES.find(function(s) { return s.type === t; });
+        return found ? found.name : t;
+      });
+      html += '<div class="result-correct-list" style="margin-top:8px">建議配對：' + correctNames.join('、') + '</div>';
+    }
   } else {
     html += '<div class="result-icon">📥</div>';
-    html += '<h2 class="result-title draw">' + (card ? '摸了一張牌' : '牌堆已空，跳過回合') + '</h2>';
+    html += '<h2 class="result-title draw">' + (cards ? '摸了' + (Array.isArray(cards) ? cards.length + '張' : '1張') + '牌' : '牌堆已空，跳過回合') + '</h2>';
+    if (explanation) {
+      html += '<div class="result-explanation" style="margin-top:8px">' + explanation + '</div>';
+    }
   }
 
   html += '<div class="result-cards">';
@@ -1294,41 +1487,24 @@ function showResult(type, scene, card, explanation) {
       '<div class="name">' + scene.name + '</div>' +
     '</div>';
   }
-  if (card && type !== 'draw') {
+  if (cards && Array.isArray(cards)) {
+    cards.forEach(function(card) {
+      if (!card) return;
+      html += '<div class="result-card-mini">' +
+        '<div class="label">結構卡</div>' +
+        '<div class="icon" style="font-size:1rem">' + (CARD_ICONS[card.type] || '') + '</div>' +
+        '<div class="name">' + card.name + '</div>' +
+      '</div>';
+    });
+  } else if (cards && !Array.isArray(cards)) {
+    /* 舊格式相容 */
     html += '<div class="result-card-mini">' +
       '<div class="label">結構卡</div>' +
-      '<div class="icon" style="font-size:1rem">' + CARD_ICONS[card.type] + '</div>' +
-      '<div class="name">' + card.name + '</div>' +
-    '</div>';
-  }
-  if (card && type === 'draw') {
-    html += '<div class="result-card-mini">' +
-      '<div class="label">抽到</div>' +
-      '<div class="icon" style="font-size:1rem">' + CARD_ICONS[card.type] + '</div>' +
-      '<div class="name">' + card.name + '</div>' +
+      '<div class="icon" style="font-size:1rem">' + (CARD_ICONS[cards.type] || '') + '</div>' +
+      '<div class="name">' + cards.name + '</div>' +
     '</div>';
   }
   html += '</div>';
-
-  if (type === 'correct' && explanation) {
-    html += '<div class="result-explanation"><i class="fas fa-lightbulb" style="color:var(--optic-gold)"></i> ' + explanation + '</div>';
-  }
-  if (type === 'wrong' && scene) {
-    html += '<div class="result-hint">' + scene.wrongHint + '</div>';
-    var correctNames = scene.correct.map(function(t) {
-      var found = STRUCTURE_TYPES.find(function(s) { return s.type === t; });
-      return found ? found.name : t;
-    });
-    html += '<div class="result-correct-list">正確答案：' + correctNames.join('、') + '</div>';
-    /* Show explanation for each correct answer */
-    scene.correct.forEach(function(t) {
-      if (scene.explanations[t]) {
-        html += '<div class="result-explanation" style="margin-top:6px"><strong>' +
-          (STRUCTURE_TYPES.find(function(s) { return s.type === t; }) || {}).name + '：</strong>' +
-          scene.explanations[t] + '</div>';
-      }
-    });
-  }
 
   html += '<button class="btn btn-primary" style="margin-top:16px" onclick="afterResult()"><i class="fas fa-arrow-right"></i> 繼續</button>';
 
@@ -1338,14 +1514,13 @@ function showResult(type, scene, card, explanation) {
 
 function afterResult() {
   var p = G.players[G.currentPlayer];
-  if (p.score >= 5) {
-    /* Slight delay so user can see the last score popup */
+  if (p.score >= 10) {
     setTimeout(showGameOver, 600);
     return;
   }
   G.currentPlayer = 1 - G.currentPlayer;
   G.currentScene = null;
-  G.selectedCardIdx = -1;
+  G.selectedCardsIdx = [];
   showPassScreen();
 }
 
@@ -1384,8 +1559,10 @@ function initiateDuel() {
 
   if (sensory.type === 'color_test') {
     G.duel.challenge = Object.assign({}, pick(ISHIHARA_CHALLENGES));
-  } else {
+  } else if (sensory.type === 'overlap_test') {
     G.duel.challenge = Object.assign({}, pick(OVERLAP_CHALLENGES));
+  } else {
+    G.duel.challenge = Object.assign({}, pick(ILLUSION_CHALLENGES));
   }
 
   showDuelIntro();
@@ -1424,9 +1601,13 @@ function showDuelBuzz() {
   if (G.duel.sensoryCard.type === 'color_test') {
     challengeHtml = '<canvas id="ishihara-canvas" width="220" height="220" style="border-radius:50%;margin:0 auto;display:block"></canvas>';
     questionText = '你看到什麼數字？';
-  } else {
+  } else if (G.duel.sensoryCard.type === 'overlap_test') {
     challengeHtml = '<canvas id="overlap-canvas" width="260" height="200" style="margin:0 auto;display:block;border-radius:12px"></canvas>';
     questionText = '圖中共有幾個獨立的幾何形狀？';
+  } else {
+    /* illusion_test */
+    challengeHtml = '';
+    questionText = G.duel.challenge.question || '';
   }
 
   /* 初始化搶答狀態 */
@@ -1521,13 +1702,14 @@ function showDuelOptions() {
   var ch = G.duel.challenge;
   var playerName = G.players[G.duel.buzzer].name;
   var options = ch.options || [];
-  var correctAnswer = ch.number !== undefined ? ch.number : ch.count;
+  var isIllusion = G.duel.sensoryCard.type === 'illusion_test';
+  var correctAnswer = isIllusion ? ch.answer : (ch.number !== undefined ? ch.number : ch.count);
 
   // 1. 渲染基礎結構
   container.innerHTML =
     '<h2 class="duel-title" style="font-size:1.2rem">⚡ 搶答中</h2>' +
     '<div class="duel-answerer">' + playerName + ' 搶先作答！</div>' +
-    '<div class="duel-question">' + (G.duel.sensoryCard.type === 'color_test' ? '你看到的數字是？' : '共有幾個幾何形狀？') + '</div>' +
+    '<div class="duel-question">' + (isIllusion ? '' : (G.duel.sensoryCard.type === 'color_test' ? '你看到的數字是？' : '共有幾個幾何形狀？')) + '</div>' +
     '<div class="duel-options" id="duel-options-container"></div>';
 
   // 2. 動態產生選項並綁定事件
@@ -1550,24 +1732,27 @@ function duelAnswer(chosen, correct) {
   var isCorrect = chosen === correct;
 
   if (isCorrect) {
-    G.players[buzzer].score += 1;
+    G.players[buzzer].score += 2;
     container.innerHTML =
       '<div class="result-icon">🎉</div>' +
-      '<div class="duel-result-text" style="color:var(--success)">' + G.players[buzzer].name + ' 答對了！+1 分</div>' +
+      '<div class="duel-result-text" style="color:var(--success)">' + G.players[buzzer].name + ' 答對了！+2 分</div>' +
       '<div style="color:var(--text-dim);margin-bottom:16px">正確答案：' + correct + '</div>' +
       '<button id="btn-continue-success" class="btn btn-primary">繼續</button>';
       
     document.getElementById('btn-continue-success').onclick = function() { afterDuel(); };
-    showScorePopup('+1');
+    showScorePopup('+2');
     
   } else if (!G.duel.secondChance) {
     G.duel.secondChance = true;
     var other = 1 - buzzer;
     G.duel.buzzer = other;
+    /* 答錯的玩家下一回合暫停出牌 */
+    G.players[buzzer].skipNext = true;
     
     container.innerHTML =
       '<div class="result-icon">❌</div>' +
       '<div class="duel-result-text" style="color:var(--error)">' + G.players[buzzer].name + ' 答錯了！</div>' +
+      '<div style="color:var(--text-dim);margin-bottom:8px">' + G.players[buzzer].name + ' 下一回合暫停出牌</div>' +
       '<div style="color:var(--text-dim);margin-bottom:16px">' + G.players[other].name + ' 獲得答題機會</div>' +
       '<button id="btn-continue-retry" class="btn btn-primary">繼續作答</button>';
       
@@ -1585,17 +1770,16 @@ function duelAnswer(chosen, correct) {
 }
 
 function afterDuel() {
-  /* 確保移除鍵盤事件監聽 */
   document.removeEventListener('keydown', handleDuelKeydown);
   var p0 = G.players[0];
   var p1 = G.players[1];
-  if (p0.score >= 5 || p1.score >= 5) {
+  if (p0.score >= 10 || p1.score >= 10) {
     showGameOver();
     return;
   }
   G.currentPlayer = 1 - G.currentPlayer;
   G.currentScene = null;
-  G.selectedCardIdx = -1;
+  G.selectedCardsIdx = [];
   showPassScreen();
 }
 
@@ -1760,13 +1944,13 @@ function drawOverlap(canvas, count) {
    GAME OVER
    ========================================================= */
 function showGameOver() {
-  var winner = G.players[0].score >= 5 ? 0 : 1;
+  var winner = G.players[0].score >= 10 ? 0 : 1;
   var container = document.getElementById('gameover-container');
 
   container.innerHTML =
     '<div class="gameover-trophy">🏆</div>' +
     '<h1 class="gameover-winner">' + G.players[winner].name + ' 獲勝！</h1>' +
-    '<p class="gameover-subtitle">恭喜達成 5 點積分</p>' +
+    '<p class="gameover-subtitle">恭喜達成 10 點積分</p>' +
     '<div class="gameover-scores">' +
       '<div class="gameover-score-item">' +
         '<div class="gameover-score-name">' + G.players[0].name + '</div>' +
