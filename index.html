@@ -821,10 +821,10 @@ h1, h2, h3 { font-family: 'ZCOOL KuaiLe', 'Noto Sans TC', sans-serif; }
         <h3>🎭 身份卡</h3>
         <p>遊戲開始前每人隨機抽取 1 張，決定本局的生理特質：</p>
         <ul>
-          <li><strong>健康明眸</strong>：初始手牌減1張（開局僅抽3張）</li>
-          <li><strong>近視患者</strong>：面對[遠距]場景必須連同凹透鏡出牌</li>
-          <li><strong>遠視患者</strong>：面對[近距]場景必須連同凸透鏡出牌</li>
-          <li><strong>夜盲症患者</strong>：[強光]得分時免費多抽1張；[弱光]強制不能出牌</li>
+          <li><strong>健康明眸</strong>：開局抽4張手牌，無特殊限制</li>
+          <li><strong>近視患者</strong>：手牌+1（開局抽5張）；面對[遠距]場景必須連同凹透鏡出牌</li>
+          <li><strong>遠視患者</strong>：手牌+1（開局抽5張）；面對[近距]場景必須連同凸透鏡出牌</li>
+          <li><strong>夜盲症患者</strong>：手牌+1（開局抽5張）；[強光]得分時免費多抽1張；[弱光]強制不能出牌</li>
         </ul>
       </div>
       <div class="rules-section">
@@ -911,10 +911,10 @@ const STRUCTURE_TYPES = [
 ];
 
 const IDENTITY_CARDS = [
-  { type: 'healthy', name: '健康明眸', desc: '初始手牌減1張（開局僅抽3張）' },
-  { type: 'myopia', name: '近視患者', desc: '面對任何有[遠距]標籤的場景，必須連同「凹透鏡」一起出牌，否則出牌無效得0分' },
-  { type: 'hyperopia', name: '遠視患者', desc: '面對任何有[近距]標籤的場景，必須連同「凸透鏡」一起出牌，否則出牌無效得0分' },
-  { type: 'night_blind', name: '夜盲症患者', desc: '[強光]成功得分時免費多抽1張牌；[弱光]強制不能出牌' },
+  { type: 'healthy', name: '健康明眸', desc: '開局抽4張手牌，無特殊限制' },
+  { type: 'myopia', name: '近視患者', desc: '手牌+1（開局抽5張）；面對任何有[遠距]標籤的場景，必須連同「凹透鏡」一起出牌，否則出牌無效得0分' },
+  { type: 'hyperopia', name: '遠視患者', desc: '手牌+1（開局抽5張）；面對任何有[近距]標籤的場景，必須連同「凸透鏡」一起出牌，否則出牌無效得0分' },
+  { type: 'night_blind', name: '夜盲症患者', desc: '手牌+1（開局抽5張）；[強光]成功得分時免費多抽1張牌；[弱光]強制不能出牌' },
 ];
 
 const SCENE_CARDS = [
@@ -1088,9 +1088,9 @@ function startGame() {
   G.players[0].identity = G.identityDeck.pop();
   G.players[1].identity = G.identityDeck.pop();
 
-  /* 發手牌：健康明眸抽3張，其他抽4張 */
+  /* 發手牌：健康明眸抽4張，其他角色抽5張（手牌+1） */
   for (var pi = 0; pi < 2; pi++) {
-    var handSize = G.players[pi].identity.type === 'healthy' ? 3 : 4;
+    var handSize = G.players[pi].identity.type === 'healthy' ? 4 : 5;
     for (var hi = 0; hi < handSize; hi++) {
       if (G.structureDeck.length > 0) {
         G.players[pi].hand.push(G.structureDeck.pop());
