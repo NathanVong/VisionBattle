@@ -97,6 +97,17 @@ h1, h2, h3 { font-family: 'ZCOOL KuaiLe', 'Noto Sans TC', sans-serif; }
   overflow: hidden;
 }
 .btn:active { transform: scale(0.96); }
+/* Touch ripple effect */
+.btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(255,255,255,0.3) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+}
+.btn:active::after { opacity: 1; transition: opacity 0s; }
 .btn-primary {
   background: linear-gradient(135deg, var(--iris), var(--retina));
   color: #fff;
@@ -416,6 +427,14 @@ h1, h2, h3 { font-family: 'ZCOOL KuaiLe', 'Noto Sans TC', sans-serif; }
   position: relative;
 }
 .hand-card:active { transform: scale(0.95); }
+.hand-card:active::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(228,179,99,0.08);
+  border-radius: 10px;
+  pointer-events: none;
+}
 .hand-card.selected {
   border-color: var(--optic-gold);
   box-shadow: 0 0 16px rgba(228,179,99,0.5);
@@ -573,6 +592,16 @@ h1, h2, h3 { font-family: 'ZCOOL KuaiLe', 'Noto Sans TC', sans-serif; }
   box-shadow: 0 4px 16px rgba(0,0,0,0.3);
 }
 .buzz-btn:active { transform: scale(0.93); }
+.buzz-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(255,255,255,0.25) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+}
+.buzz-btn:active::after { opacity: 1; transition: opacity 0s; }
 .buzz-btn.p1 { background: linear-gradient(135deg, var(--p1-color), #3a7ab5); }
 .buzz-btn.p2 { background: linear-gradient(135deg, var(--p2-color), #b33a6a); }
 
@@ -749,7 +778,7 @@ h1, h2, h3 { font-family: 'ZCOOL KuaiLe', 'Noto Sans TC', sans-serif; }
   .scene-card-display { width: 120px; height: 170px; }
   .menu-title { font-size: 2.1rem; }
 }
-@media (min-width: 600px) {ZZ
+@media (min-width: 600px) {
   .hand-card { width: 82px; height: 115px; }
   .scene-card-display { width: 160px; height: 220px; }
 }
@@ -938,6 +967,27 @@ const SENSORY_CARDS = [
   { type: 'color_test', name: '色盲測試', icon: '🔴🟢' },
   { type: 'overlap_test', name: '重疊圖案分析', icon: '◯△□' }
 ];
+
+/* Reshuffle discarded structure cards back into deck when empty */
+function reshuffleStructureDeckIfEmpty() {
+  if (G.structureDeck.length === 0) {
+    /* Take all cards from players' hands and put back into the deck */
+    var collected = [];
+    G.players.forEach(function(p) {
+      while (p.hand.length > 0) {
+        collected.push(p.hand.pop());
+      }
+    });
+    /* Shuffle and make new deck */
+    G.structureDeck = collected;
+    shuffle(G.structureDeck);
+    /* Re-deal 3 cards to each player */
+    for (var di = 0; di < 3; di++) {
+      if (G.structureDeck.length > 0) G.players[0].hand.push(G.structureDeck.pop());
+      if (G.structureDeck.length > 0) G.players[1].hand.push(G.structureDeck.pop());
+    }
+  }
+}
 
 /* Card SVG icons */
 const CARD_ICONS = {
@@ -1178,8 +1228,13 @@ function selectCard(idx) {
 }
 
 function drawSceneCard() {
+  /* Reshuffle scene deck if empty */
+  if (G.sceneDeck.length === 0) {
+    /* Rebuild and reshuffle from initial data */
+    G.sceneDeck = SCENE_CARDS.map(function(c) { return Object.assign({}, c, { uid: genUID() }); });
+    shuffle(G.sceneDeck);
+  }
   var sc = G.sceneDeck.shift();
-  G.sceneDeck.push(Object.assign({}, sc, { uid: genUID() }));
   G.currentScene = sc;
   G.selectedCardIdx = -1;
   renderGameScreen('sceneRevealed');
@@ -1206,6 +1261,7 @@ function playCard() {
 function passCard() {
   var p = G.players[G.currentPlayer];
   var drawn = null;
+  reshuffleStructureDeckIfEmpty();
   if (G.structureDeck.length > 0) {
     drawn = G.structureDeck.pop();
     p.hand.push(drawn);
@@ -1283,7 +1339,8 @@ function showResult(type, scene, card, explanation) {
 function afterResult() {
   var p = G.players[G.currentPlayer];
   if (p.score >= 5) {
-    showGameOver();
+    /* Slight delay so user can see the last score popup */
+    setTimeout(showGameOver, 600);
     return;
   }
   G.currentPlayer = 1 - G.currentPlayer;
@@ -1311,8 +1368,12 @@ function initiateDuel() {
   if (p.usedDuel) return;
   p.usedDuel = true;
 
+  /* Reshuffle sensory deck if empty */
+  if (G.sensoryDeck.length === 0) {
+    G.sensoryDeck = SENSORY_CARDS.map(function(c) { return Object.assign({}, c, { uid: genUID() }); });
+    shuffle(G.sensoryDeck);
+  }
   var sensory = G.sensoryDeck.shift();
-  G.sensoryDeck.push(Object.assign({}, sensory, { uid: genUID() }));
   G.duel.sensoryCard = sensory;
   G.duel.buzzer = -1;
   G.duel.secondChance = false;
@@ -1390,7 +1451,8 @@ function showDuelBuzz() {
   /* 題目顯示後馬上可以搶答 */
   G.duel.canBuzz = true;
 
-  /* 綁定鍵盤事件 */
+  /* 綁定鍵盤事件 — 先移除舊的避免重複綁定 */
+  document.removeEventListener('keydown', handleDuelKeydown);
   document.addEventListener('keydown', handleDuelKeydown);
 
   /* Draw challenge after DOM update */
@@ -1409,10 +1471,10 @@ function handleDuelKeydown(e) {
   
   var player = key === 'a' ? 0 : 1;
   
-  /* 檢查是否為違規（題目剛顯示時按鍵，DOM 渲染前就按視為違規） */
+  /* 檢查是否為違規（300ms 內按鍵視為過早搶答，為觸控與鍵盤緩衝） */
   if (!G.duel.buzzed) {
     var elapsed = Date.now() - G.duel.questionStartTime;
-    if (elapsed < 100) {
+    if (elapsed < 300) {
       handleFalseStart(player);
       return;
     }

@@ -60,7 +60,7 @@
 
 ## 🖥️ 遊玩方式
 
-### 線上遊玩
+### 線上遊玩（推薦）
 
 直接開啟瀏覽器即可遊玩，無需安裝任何軟體！
 
@@ -70,7 +70,7 @@
 
 ```bash
 # 1. 複製專案
-git clone https://github.com/你的帳號/VisionBattle.git
+git clone https://github.com/nathanvong/VisionBattle.git
 
 # 2. 進入目錄
 cd VisionBattle
@@ -78,3 +78,44 @@ cd VisionBattle
 # 3. 使用瀏覽器開啟 index.html
 open index.html   # macOS
 start index.html  # Windows
+xdg-open index.html  # Linux
+```
+
+或在專案目錄下啟動一個簡易伺服器：
+
+```bash
+# Python 3
+python3 -m http.server 8080
+# 然後開啟 http://localhost:8080
+
+# 或使用 Node.js
+npx serve .
+```
+
+---
+
+## 🛠️ 開發
+
+本專案為純前端應用，僅需一個 HTML 檔案即可運作。所有樣式、邏輯與素材皆內嵌於 `index.html` 中。
+
+### 專案結構
+
+```
+VisionBattle/
+├── index.html    # 完整遊戲（HTML + CSS + JavaScript）
+├── README.md     # 本檔案
+└── LICENSE       # MIT License
+```
+
+### 自訂與擴充
+
+- 修改 `STRUCTURE_TYPES` 陣列可增減結構卡類型
+- 修改 `SCENE_CARDS` 陣列可增減場景卡及其正確配對
+- 修改 `SENSORY_CARDS` 陣列可增減感覺應用卡決鬥類型
+- 修改 `G.players[x].score >= 5` 中的 `5` 可調整獲勝所需分數
+
+---
+
+## 📄 License
+
+MIT License — 詳見 [LICENSE](LICENSE) 檔案。
