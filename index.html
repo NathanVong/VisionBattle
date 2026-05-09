@@ -456,6 +456,11 @@ h1, h2, h3 { font-family: 'ZCOOL KuaiLe', 'Noto Sans TC', sans-serif; }
   line-height: 1.2;
   margin-top: 2px;
 }
+.hand-card-tag {
+  font-size: calc(1rem * var(--scale));
+  color: #999;
+  margin-top: 1px;
+}
 .hand-actions {
   display: flex;
   gap: 8px;
@@ -1270,7 +1275,7 @@ function renderHandSection(subPhase) {
     cardsHtml += '<div class="hand-card' + sel + dis + '" onclick="selectCoverCard(' + i + ',' + coverPlayerIdx + ')" data-idx="' + i + '">' +
       '<div class="hand-card-icon">' + CARD_ICONS[card.type] + '</div>' +
       '<div class="hand-card-name">' + card.name + '</div>' +
-      (card.tags && card.tags[0] !== 'wild' && card.tags[0] !== 'lens' ? '<div style="font-size:0.45rem;color:#999;margin-top:1px">[' + card.tags[0] + ']</div>' : '') +
+(card.tags && card.tags[0] !== 'wild' && card.tags[0] !== 'lens' ? '<div class="hand-card-tag">[' + card.tags[0] + ']</div>' : '') +
     '</div>';
   });
 
